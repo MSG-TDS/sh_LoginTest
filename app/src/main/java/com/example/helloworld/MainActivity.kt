@@ -15,8 +15,8 @@ class Accounts{
     }
 
     fun checkId(id:String):Boolean{
-        var bResult = accounts.containsKey((id))
-        return bResult
+        var bResult123 = accounts.containsKey((id))
+        return bResult123
     }
 
     fun checkPw(inputId: String, inputPw: String):Boolean{
