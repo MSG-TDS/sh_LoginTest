@@ -1,6 +1,7 @@
 package com.example.helloworld
 
 import android.accounts.Account
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -63,6 +64,10 @@ class MainActivity : AppCompatActivity() {
             if (accounts.get(inputId) == inputPw) {
                 Toast.makeText(this@MainActivity, "로그인 성공!", Toast.LENGTH_SHORT).show()
                 Log.d("BasicSyntax", "계정정보 일치. 로그인 성공.")
+                val intent = Intent(this, Chat_Activity::class.java)
+                intent.putExtra("ID",inputId)
+                startActivity(intent)
+
             } else {
                 Toast.makeText(this@MainActivity, "패스워드가 틀렸습니다.", Toast.LENGTH_SHORT).show()
                 Log.d("BasicSyntax", "패스워드 불일치.")
