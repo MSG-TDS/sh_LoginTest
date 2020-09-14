@@ -5,102 +5,82 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_main.*
 
-class Accounts{
-    private var accounts = mutableMapOf<String, String>()
-
-     fun putAccount(id:String, pw:String){
-        accounts.put(id, pw)
-    }
-
-    fun checkId(id:String):Boolean{
-        var bResult123 = accounts.containsKey((id))
-        return bResult123
-    }
-
-    fun checkPw(inputId: String, inputPw: String):Boolean{
-        var bResult = if(accounts.get(inputId) == inputPw) true else false
-        return bResult
-    }
-}
+// Google Login Result
+// Firebase Auth
+private var firebaseAuth:FirebaseAuth? = null
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        /*계정 정보 선언 - 클래스 사용 */
-        var accountsClass = Accounts()
-        accountsClass.putAccount("20190085", "20190085")
-        Log.d("BasicSyntax", "계정 정보 등록. id= ${accountsClass}")
+        // Hide the status bar.
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
+        // Remember that you should never show the action bar if the
+        // status bar is hidden, so hide that too if necessary.
+        actionBar?.hide()
 
-
-        /* 계정 정보 선언 - 함수 사용 */
-        var accounts = mutableMapOf<String, String>()
-        accounts.put("20190085", "20190085")
-        Log.d("BasicSyntax", "계정 정보 등록. id= ${accounts}")
+        // Firebase 인스턴스 생성
+        firebaseAuth = FirebaseAuth.getInstance()
 
         /* 로그인 버튼 클릭 이벤트 */
         btnLogin.setOnClickListener {
-            /* 함수 */
-            logIn(accounts)
+            loginEmail()
+        }
 
-            /* 클래스 */
-            logIn_Class(accountsClass)
+        /* 계정 생성 버튼 클릭 이벤트 */
+        btnCreate.setOnClickListener {
+            createEmail()
+        }
+
+    }
+
+    // Create Email
+    private fun createEmail(){
+        firebaseAuth!!.createUserWithEmailAndPassword(txtID.text.toString(), txtPW.text.toString()).addOnCompleteListener(this){
+            if(it.isSuccessful)
+            {
+                // Sign in success, update UI with the signed-in user's information
+                val user = firebaseAuth?.currentUser
+                Toast.makeText(this, "Authentication success.", Toast.LENGTH_LONG).show()
+            }
+            else{
+                // If sign in fails, display a message to the user
+                Toast.makeText(this, "Authentication failed." + it.exception.toString(), Toast.LENGTH_SHORT).show()
+
+            }
         }
     }
 
-    /* 함수를 사용한 방법 */
-    fun logIn(accounts: kotlin.collections.MutableMap<String, String>){
-        var inputId = txtID.text.toString()
-        Log.d("BasicSyntax", "입력한 id 읽어오기. id= ${inputId}")
+    // SignIn with Email
+    private fun loginEmail(){
+        firebaseAuth!!.signInWithEmailAndPassword(txtID.text.toString(), txtPW.text.toString()).addOnCompleteListener(this){
+            if(it.isSuccessful){
+                // Sign in success, update UI with the signed-in user's information
+                Toast.makeText(this, "signInWithEmail success.", Toast.LENGTH_LONG).show()
 
-        if (accounts.containsKey(inputId)) {
-            Log.d("BasicSyntax", "id 정보 존재.")
+                // Firebase에 등록된 계정 정보들을 가진 변수.
+                val user = firebaseAuth?.currentUser
 
-            var inputPw = txtPW.text.toString()
-            if (accounts.get(inputId) == inputPw) {
-                Toast.makeText(this@MainActivity, "로그인 성공!", Toast.LENGTH_SHORT).show()
-                Log.d("BasicSyntax", "계정정보 일치. 로그인 성공.")
+                // intent로 뷰 간의 데이터 전송.
                 val intent = Intent(this, Chat_Activity::class.java)
-                intent.putExtra("ID",inputId)
+                intent.putExtra("user",user)
+
+                // 채팅 화면 액티비티 실행
                 startActivity(intent)
-
-            } else {
-                Toast.makeText(this@MainActivity, "패스워드가 틀렸습니다.", Toast.LENGTH_SHORT).show()
-                Log.d("BasicSyntax", "패스워드 불일치.")
             }
-        } else {
-            Toast.makeText(this@MainActivity, "등록되지 않은 아이디입니다.", Toast.LENGTH_SHORT).show()
-            Log.d("BasicSyntax", "아이디 정보 없음.")
+            else
+            {
+                // If sign in fails, display a message to the user
+                Toast.makeText(this, "로그인 실패. \n아이디 또는 패스워드를 확인해주세요.", Toast.LENGTH_LONG).show()
+            }
         }
-
     }
 
-    /* 클래스 사용한 방법*/
-    fun logIn_Class(accounts:Accounts) {
 
-        var inputId = txtID.text.toString()
-        Log.d("BasicSyntax", "입력한 id 읽어오기. id= ${inputId}")
-
-        if (accounts.checkId(inputId)) {
-            Log.d("BasicSyntax", "id 정보 존재.")
-
-            var inputPw = txtPW.text.toString()
-            if (accounts.checkPw(inputId, inputPw)) {
-                Toast.makeText(this@MainActivity, "로그인 성공!", Toast.LENGTH_SHORT).show()
-                Log.d("BasicSyntax", "계정정보 일치. 로그인 성공 class.")
-            }
-            else {
-                Toast.makeText(this@MainActivity, "패스워드가 틀렸습니다.", Toast.LENGTH_SHORT).show()
-                Log.d("BasicSyntax", "패스워드 불일치.")
-            }
-        }
-        else {
-            Toast.makeText(this@MainActivity, "등록되지 않은 아이디입니다.", Toast.LENGTH_SHORT).show()
-            Log.d("BasicSyntax", "아이디 정보 없음.")
-        }
-    }
 }

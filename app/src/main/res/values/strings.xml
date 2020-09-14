@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Hello World</string>
     <string name="btnLogin">login</string>
+    <string name="btnCreate">Create</string>
     <string name="txtID">ID</string>
     <string name="txtPW">PW</string>
+    <string name="MessageHint">Enter the Message</string>
+    <string name="Enter">↑</string>
 </resources>
